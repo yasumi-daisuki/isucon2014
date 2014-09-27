@@ -139,15 +139,14 @@ function current_user() {
   return $user;
 }
 
-function last_login() {
-  $user = current_user();
+function last_login($user) {
   if (empty($user)) {
     return null;
   }
 
   $db = option('db_conn');
 
-  $stmt = $db->prepare('SELECT * FROM login_log WHERE succeeded = 1 AND user_id = :id ORDER BY id DESC LIMIT 2');
+  $stmt = $db->prepare('SELECT created_at,ip FROM login_log WHERE succeeded = 1 AND user_id = :id ORDER BY id DESC LIMIT 2');
   $stmt->bindValue(':id', $user['id']);
   $stmt->execute();
   $stmt->fetch();
@@ -250,7 +249,7 @@ dispatch_get('/mypage', function() {
   }
   else {
     set('user', $user);
-    set('last_login', last_login());
+    set('last_login', last_login($user));
     return html('mypage.html.php');
   }
 });
